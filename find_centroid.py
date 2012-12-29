@@ -55,7 +55,11 @@ def get_closest_frame(trajectory, average_structure, skip_first):
     ensemble.setCoords( average_structure.getCoords() )
     ensemble.superpose()
     rmsds = ensemble.getRMSDs()
+
     min_index = numpy.argmin(rmsds)
+    for r in rmsds:
+        print r
+    print min_index
 
     output.setCoords( ensemble.getCoordsets(min_index) )
     return output
