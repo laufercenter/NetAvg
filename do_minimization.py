@@ -71,9 +71,9 @@ def create_no_h_file():
     p1.communicate('q\n')
 
     # run editconf
-    #edit_cmd = 'editconf -f min_round_2.gro -o no_h.gro -n no_h.ndx'
-    #p2 = subprocess.Popen(edit_cmd, shell=True, stdin=subprocess.PIPE)
-    #p2.communicate('2\n')
+    edit_cmd = 'editconf -f min_round_2.gro -o no_h.gro -n no_h.ndx'
+    p2 = subprocess.Popen(edit_cmd, shell=True, stdin=subprocess.PIPE)
+    p2.communicate('2\n')
 
 
 def re_order():
@@ -92,8 +92,7 @@ def re_order():
             print >>out, val
 
     # resort
-    #edit_cmd = 'editconf -f no_h.gro -o min.pdb -n resort.ndx'
-    edit_cmd = 'editconf -f min_round_2.gro -o min.pdb -n resort.ndx'
+    edit_cmd = 'editconf -f no_h.gro -o min.pdb -n resort.ndx'
     subprocess.check_call(edit_cmd, shell=True)
 
 
@@ -162,8 +161,7 @@ def run_minimization(average, start):
     re_order()
 
     # load the pdb
-    #protein = prody.parsePDB('min.pdb').select('not hydrogen')
-    protein = prody.parsePDB('min.pdb').select('all')
+    protein = prody.parsePDB('min.pdb').select('not hydrogen')
 
     # clean up
     os.chdir('..')
