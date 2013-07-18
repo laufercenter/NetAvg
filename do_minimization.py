@@ -36,9 +36,10 @@ def parse_args():
     parser.add_argument('pdb_file', metavar='INPUT_PDB_FILE', help='path to input pdb file')
     parser.add_argument('trajectory', metavar='TRAJECTORY', help='path to input trajectory')
     parser.add_argument('out_file', metavar='OUTPUT_PDB_FILE', help='path to input pdb file')
+    parser.add_argument('--pos_res_k', type=float, default=1000.)
     args = parser.parse_args()
 
-    return (args.pdb_file, args.trajectory, args.out_file)
+    return (args.pdb_file, args.trajectory, args.out_file, args.pos_res_k)
 
 
 def get_closest_frame(trajectory, average_structure):
@@ -96,14 +97,15 @@ def re_order():
     subprocess.check_call(edit_cmd, shell=True)
 
 
-def run_minimization(average, start):
+def run_minimization(average, start, posres_force_const):
     # create temp dir
     os.mkdir('Temp')
     os.chdir('Temp')
 
     # write the average file
     prody.writePDB('average.pdb', average)
-    pdb_cmd = 'pdb2gmx -f average.pdb -ff amber99sb-ildn -water none -n index.ndx -posrefc 1000 -o ref.gro -his'
+    pdb_cmd = 'pdb2gmx -f average.pdb -ff amber99sb-ildn -water none -n index.ndx -posrefc {} -o ref.gro -his'.format(
+        posres_force_const)
     p = subprocess.Popen(pdb_cmd, shell=True, stdin=subprocess.PIPE)
     p.communicate('0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n')
     # put it in a bigger box
@@ -114,7 +116,8 @@ def run_minimization(average, start):
     prody.writePDB('start.pdb', start)
 
     # pdb2gmx
-    pdb_cmd = 'pdb2gmx -f start.pdb -ff amber99sb-ildn -water none -n index.ndx -posrefc 1000 -his'
+    pdb_cmd = 'pdb2gmx -f start.pdb -ff amber99sb-ildn -water none -n index.ndx -posrefc {} -his'.format(
+        posres_force_const)
     p = subprocess.Popen(pdb_cmd, shell=True, stdin=subprocess.PIPE)
     p.communicate('0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n')
 
@@ -171,11 +174,11 @@ def run_minimization(average, start):
 
 
 def  main():
-    in_file, trajectory, out_file = parse_args()
+    in_file, trajectory, out_file, force_const = parse_args()
     average = load_pdb(in_file)
     trajectory = load_pdb(trajectory)
     starting_model = get_closest_frame(trajectory, average)
-    minimized_protein = run_minimization(average, starting_model)
+    minimized_protein = run_minimization(average, starting_model, force_const)
     prody.writePDB(out_file, minimized_protein)
 
 
