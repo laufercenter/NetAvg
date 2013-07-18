@@ -12,25 +12,25 @@
 All trajectories should be in multi-frame PDB format.
 
 
-cartesian_average.py trajectory.pdb average.pdb
+`cartesian_average.py trajectory.pdb average.pdb`
 
 Iteratively superimpose all frames of the trajectory onto the average and then
 output the cartesian average of all heavy atoms.
 
 
-find_centroid.py trajectory.pdb centroid.pdb
+`find_centroid.py trajectory.pdb centroid.pdb`
 
 Compute the average as for cartesian_average.py and then output the frame from
 the trajectory that is closest to the average.
 
 
-network_average.py --cutoff 1.0 trajectory.pdb average.pdb
+`network_average.py --cutoff 1.0 trajectory.pdb average.pdb`
 
 Compute the NetAvg for trajectory. A cutoff of 1.0 works best on our benchmark
 set.
 
 
-do_minimization.py start.pdb target.pdb final.pdb
+`do_minimization.py start.pdb target.pdb final.pdb`
 
 Apply position restraints to move start closer to target, while maintaining a
 physical structure. A working version of gromacs must be in your path for this
