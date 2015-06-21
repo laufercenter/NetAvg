@@ -30,6 +30,13 @@ rgbradii = 1.8
 ;nstxout = 1
 '''
 
+# Check Gromacs version
+out = subprocess.check_output(["gmx", "--version"])
+tokens = out.split("\n")[0].split()[-1].split(".")
+# Gromacs versions after 4.5 support the cutoff-scheme option
+# and versions after 4.6 uses cutoff-scheme = verlet as default
+if int(tokens[0])*10+int(tokens[1]) > 45:
+    mdp_string = "\ncutoff-scheme = group" + mdp_string
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Generate trajectory with gaussian flucutations.')
@@ -104,7 +111,7 @@ def run_minimization(average, start, posres_force_const):
 
     # write the average file
     prody.writePDB('average.pdb', average)
-    pdb_cmd = 'pdb2gmx -f average.pdb -ff amber99sb-ildn -water none -n index.ndx -posrefc {} -o ref.gro -his'.format(
+    pdb_cmd = 'pdb2gmx -ignh -f average.pdb -ff amber99sb-ildn -water none -n index.ndx -posrefc {} -o ref.gro -his'.format(
         posres_force_const)
     p = subprocess.Popen(pdb_cmd, shell=True, stdin=subprocess.PIPE)
     p.communicate('0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n')
@@ -116,7 +123,7 @@ def run_minimization(average, start, posres_force_const):
     prody.writePDB('start.pdb', start)
 
     # pdb2gmx
-    pdb_cmd = 'pdb2gmx -f start.pdb -ff amber99sb-ildn -water none -n index.ndx -posrefc {} -his'.format(
+    pdb_cmd = 'pdb2gmx -ignh -f start.pdb -ff amber99sb-ildn -water none -n index.ndx -posrefc {} -his'.format(
         posres_force_const)
     p = subprocess.Popen(pdb_cmd, shell=True, stdin=subprocess.PIPE)
     p.communicate('0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n0\n')
@@ -138,7 +145,7 @@ def run_minimization(average, start, posres_force_const):
     subprocess.check_call(grompp_cmd, shell=True)
 
     # run mdrun
-    md_cmd = 'mdrun -deffnm min_round_1 -v -nt 1'
+    md_cmd = 'mdrun_d -deffnm min_round_1 -v -nt 1'
     subprocess.check_call(md_cmd, shell=True)
 
     #
@@ -154,7 +161,7 @@ def run_minimization(average, start, posres_force_const):
     subprocess.check_call(grompp_cmd, shell=True)
 
     # run mdrun
-    md_cmd = 'mdrun -deffnm min_round_2 -v -nt 1'
+    md_cmd = 'mdrun_d -deffnm min_round_2 -v -nt 1'
     subprocess.check_call(md_cmd, shell=True)
 
     #
