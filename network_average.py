@@ -51,7 +51,9 @@ def get_network_average(coords, cutoff):
                 g.add_edge(i,j)
 
     # find the largest connected component
-    connected_components = nx.connected_component_subgraphs(g)
+    # networkx made changes to connected_components in 1.9.
+    # http://networkx.github.io/documentation/networkx-1.9/reference/generated/networkx.algorithms.components.connected.connected_components.html#networkx.algorithms.components.connected.connected_components
+    connected_components = sorted(nx.connected_component_subgraphs(g), key=len, reverse=True)
     largest_connected_component = connected_components[0]
     print '\t{} connected components.'.format( len(connected_components) )
     print '\tLargest connected component contains {} nodes.'.format( len(largest_connected_component) )
